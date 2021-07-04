@@ -43,7 +43,47 @@ module.exports = (isDev) => {
 
 ## css module配置
 
+```
+module.exports = (isDev) => {
+	return {
+		preserveWhitepace: true,
+		extractcss: !isDev,
+		cssModules: {
+			localIdentName: '[path]-[name]-[hash:base64:5]',
+			camelCass: true
+		}
+	}
+}
+```
 
+## 安装使用eslint和editorconfig以及precommit
 
+```
+npm i eslint eslint-config-standard eslint-plugin-standard eslint-plugin-promise eslint-plugin-import eslint-plugin-node
+```
 
+创建`.eslintrc`
+
+```
+{
+	"extends": "standard"
+}
+```
+
+```
+npm i eslint-plugin-html
+```
+
+```
+// package.json
+
+"script": {
+	"clean": "rimraf dist",
+	"lint": "eslint --ext .js --ext .jsx --ext .vue client/",
+	"build": "npm run clean && npm run build:client",
+	//自动修复
+	"lint-fix": "eslint --fix --ext .js --ext .jsx --ext .vue client/"
+	...
+}
+```
 
