@@ -87,3 +87,6 @@ npm i eslint-plugin-html
 }
 ```
 
+```
+npm i eslint-loader babel-eslint
+```
