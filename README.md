@@ -384,7 +384,9 @@ errorCaptured() {
 
 vue里面的data绑定到template
 
+watch监听到某个一数据的变化，指定某个操作，（服务器使用）
 
+Vue的原生指令
 
 
 
