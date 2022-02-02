@@ -1,10 +1,14 @@
 # Vue-Vue-Router-Vuex-SSR
 
-Vue核心技术 Vue+Vue-Router+Vuex+SSR实战
-
 vue+webpack工程流搭建
 
 vue+vue-router+vuex项目架构
+
+## 服务端渲染
+
+现在的前端框架是纯客户端渲染的，（请求🤴网站的时候，返回的html是没有什么内容的），存在问题是没有办法seo, 白屏时间较长。需要等待js加载完成，执行完成之后才会显示内容。
+
+服务端渲染解决这些问题。
 
 webpack4升级
 
