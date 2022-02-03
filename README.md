@@ -14,6 +14,10 @@ webpack升级注意 ⚠️ ：1. 版本变化 2. 配置变化 3. 插件变化
 ## vue-loader配置
 
 ```js
+const isDev = process.env.NODE_ENV === 'development'
+```
+
+```js
 // vue-loader.config.js
 const docsLoader = require.resolve('./doc-loader')
 module.exports = (isDev) => {
@@ -34,7 +38,7 @@ module.exports = (isDev) => {
 ```js
 module.exports = (isDev) => {
  return {
-  preserveWhitepace: true,
+  preserveWhitespace: true,
   extractCSS: !isDev,
   cssModules: {},
  }
@@ -46,11 +50,12 @@ module.exports = (isDev) => {
 ```js
 module.exports = (isDev) => {
  return {
-  preserveWhitepace: true,
-  extractcss: !isDev,
+  preserveWhitespace: true,
+  extractCSS: !isDev,
   cssModules: {
-   localIdentName: '[path]-[name]-[hash:base64:5]',
-   camelCass: true
+   localIdentName: isDev ? '[path]-[name]-[hash:base64:5]' : '[hash:base64:5]',
+   // localIdentName: '[path]-[name]-[hash:base64:5]',
+   camelCase: true
   }
  }
 }
@@ -83,7 +88,7 @@ npm i eslint-plugin-html
  "build": "npm run clean && npm run build:client",
  //自动修复
  "lint-fix": "eslint --fix --ext .js --ext .jsx --ext .vue client/"
- ...
+ "precommit": "npm run lint-fix",
 }
 ```
 
