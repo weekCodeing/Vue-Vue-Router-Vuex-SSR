@@ -1,8 +1,7 @@
 # Vue-Vue-Router-Vuex-SSR
 
-vue+webpack工程流搭建
-
-vue+vue-router+vuex项目架构
+1. Vue+Webpack工程流搭建
+2. Vue+Vue-Router+Vuex项目架构
 
 ## 服务端渲染
 
@@ -10,95 +9,91 @@ vue+vue-router+vuex项目架构
 
 服务端渲染解决这些问题。
 
-webpack4升级
-
-1. 版本变化
-2. 配置变化
-3. 插件变化
+webpack升级注意 ⚠️ ：1. 版本变化 2. 配置变化 3. 插件变化
 
 ## vue-loader配置
 
-```
+```js
 // vue-loader.config.js
 const docsLoader = require.resolve('./doc-loader')
 module.exports = (isDev) => {
-	return {
-		preserveWhitepace: true,
-		extractCSS: !isDev,
-		cssModules: {},
-		// hotReload: false, // 根据环境变量生成
-		loaders: {
-			'docs': docsLoader,
-		},
-		preLoader: {
-		},
-	}
+ return {
+  preserveWhitespace: true, // 去掉后面的空格
+  extractCSS: !isDev, // 单独打包到css某文件
+  cssModules: {},
+  // hotReload: false, // 根据环境变量生成
+  loaders: {
+   'docs': docsLoader,
+  },
+  preLoader: {
+  },
+ }
 }
 ```
 
-```
+```js
 module.exports = (isDev) => {
-	return {
-		preserveWhitepace: true,
-		extractCSS: !isDev,
-		cssModules: {},
-	}
+ return {
+  preserveWhitepace: true,
+  extractCSS: !isDev,
+  cssModules: {},
+ }
 }
 ```
 
 ## css module配置
 
-```
+```js
 module.exports = (isDev) => {
-	return {
-		preserveWhitepace: true,
-		extractcss: !isDev,
-		cssModules: {
-			localIdentName: '[path]-[name]-[hash:base64:5]',
-			camelCass: true
-		}
-	}
+ return {
+  preserveWhitepace: true,
+  extractcss: !isDev,
+  cssModules: {
+   localIdentName: '[path]-[name]-[hash:base64:5]',
+   camelCass: true
+  }
+ }
 }
 ```
 
 ## 安装使用eslint和editorconfig以及precommit
 
-```
+```js
 npm i eslint eslint-config-standard eslint-plugin-standard eslint-plugin-promise eslint-plugin-import eslint-plugin-node
 ```
 
 创建`.eslintrc`
 
-```
+```js
 {
-	"extends": "standard"
+ "extends": "standard"
 }
 ```
 
-```
+```js
 npm i eslint-plugin-html
 ```
 
-```
+```js
 // package.json
 
 "script": {
-	"clean": "rimraf dist",
-	"lint": "eslint --ext .js --ext .jsx --ext .vue client/",
-	"build": "npm run clean && npm run build:client",
-	//自动修复
-	"lint-fix": "eslint --fix --ext .js --ext .jsx --ext .vue client/"
-	...
+ "clean": "rimraf dist",
+ "lint": "eslint --ext .js --ext .jsx --ext .vue client/",
+ "build": "npm run clean && npm run build:client",
+ //自动修复
+ "lint-fix": "eslint --fix --ext .js --ext .jsx --ext .vue client/"
+ ...
 }
 ```
 
-```
+```js
 npm i eslint-loader babel-eslint
 ```
 
 ## index.js
 
-```
+```js
 import Vue from 'vue'
 import App from './app.vue'
 
@@ -108,7 +103,7 @@ const root = document.createElement('div')
 document.body.appendChild(root)
 
 new Vue({
-	rendeer: (h) => h(App)
+ rendeer: (h) => h(App)
 }).$mount(root)
 ```
 
@@ -118,18 +113,18 @@ new Vue({
 - Vue实例的属性
 - Vue实例的方法
 
-```
+```js
 import Vue from 'vue'
 const app = new Vue({
-	// el: '#root',
-	template: '<div>{{text}}</div>',
-	data: {
-		text: 0
-	}
+ // el: '#root',
+ template: '<div>{{text}}</div>',
+ data: {
+  text: 0
+ }
 })
 app.$mount('#root')
 setInterval(()=>{
-	app.text += 1
+ app.text += 1
 },1000)
 console.log(app.$data)
 console.log(app.$props)
@@ -137,57 +132,57 @@ console.log(app.$el)
 console.log(app.$options)
 
 app.$options.render = (h) => {
-	return h('div', {}, 'new render function')
+ return h('div', {}, 'new render function')
 }  
 ```
 
-```
+```js
 const app = new Vue({
-	// el: '#root',
-	template: '<div ref="div">{{text}}</div>',
-	data: {
-		text: 0
-	},
-	watch: {
-		text(newText, oldText) {
-			console.log('${newText}:${oldText}')
-		}
-	}
+ // el: '#root',
+ template: '<div ref="div">{{text}}</div>',
+ data: {
+  text: 0
+ },
+ watch: {
+  text(newText, oldText) {
+   console.log('${newText}:${oldText}')
+  }
+ }
 })
 app.$mount('#root')
 ```
 
-```
+```js
 const unWatch = app.$watch('text', (newText, oldText){
-	console.log(`${nextText}:${oldText}`)
+ console.log(`${nextText}:${oldText}`)
 })
 setTimeout(()=>{
-	unWatch()
+ unWatch()
 }, 2000)
 ```
 
 事件监听：
 
-```
+```js
 app.$on('test', () => {
-	console.log('test emited')
+ console.log('test emited')
 })
 
 //触发事件
 app.$emit('test')
 
 app.$on('test', (a, b) => {
-	console.log('test emited ${a} ${b}')
+ console.log('test emited ${a} ${b}')
 })
 
 //触发事件
 app.$emit('test', 1, 2)
 ```
 
-```
+```js
 $once只监听一次
 app.$once('test', (a, b) => {
-	console.log('test emited ${a} ${b}')
+ console.log('test emited ${a} ${b}')
 })
 ```
 
@@ -195,16 +190,16 @@ app.$once('test', (a, b) => {
 
 非响应式的：
 
-```
+```js
 // 值在变，但不会导致重新渲染
 data: {
-	text: 0,
-	obj: {}
+ text: 0,
+ obj: {}
 }
 
 setInterval(() => {
-	app.obj.a = app.text
-	app.$forceUpdate()
+ app.obj.a = app.text
+ app.$forceUpdate()
 },1000)
 ```
 
@@ -212,11 +207,11 @@ setInterval(() => {
 
 某个对象上的，某个属性名，给他定义一个值：
 
-```
+```js
 let i = 0
 setInterval(()=>{
-	i++
-	app.$set(app.obj, 'a', i)
+ i++
+ app.$set(app.obj, 'a', i)
 },1000)
 ```
 
@@ -228,43 +223,43 @@ setInterval(()=>{
 
 2.1.0新增，如果没有提供回调且支持Promise的环境中，则返回一个Promise.注意polyfill.
 
-```
+```js
 new Vue({
-	el: '#root',
-	template: '<div>{{text}}</div>',
-	data: {
-		text: 'jeskson'
-	},
-	beforeCreate() {
-		console.log(this, 'beforeCreate')
-	},
-	created() {
-		console.log(this, 'created')
-	},
-	beforeMount() {
-		console.log(this, 'beforeMount')
-	},
-	mounted() {
-		console.log(this, 'beforeCreate')
-	},
-	beforeUpdate() {
-		console.log(this, 'beforeUpdate')
-	},
-	updated() {
-		console.log(this, 'updated')
-	},
-	activated() {
-		console.log(this, 'activated')
-	},
-	deactivated() {
-		console.log(this, 'deactivated')
-	},
-	beforeDestroy() {
-		console.log(this, 'beforeDestroy')
-	},
-	destroyed() {
-		console.log(this, 'destroyed')
-	},
+ el: '#root',
+ template: '<div>{{text}}</div>',
+ data: {
+  text: 'jeskson'
+ },
+ beforeCreate() {
+  console.log(this, 'beforeCreate')
+ },
+ created() {
+  console.log(this, 'created')
+ },
+ beforeMount() {
+  console.log(this, 'beforeMount')
+ },
+ mounted() {
+  console.log(this, 'beforeCreate')
+ },
+ beforeUpdate() {
+  console.log(this, 'beforeUpdate')
+ },
+ updated() {
+  console.log(this, 'updated')
+ },
+ activated() {
+  console.log(this, 'activated')
+ },
+ deactivated() {
+  console.log(this, 'deactivated')
+ },
+ beforeDestroy() {
+  console.log(this, 'beforeDestroy')
+ },
+ destroyed() {
+  console.log(this, 'destroyed')
+ },
 })
 ```
 
@@ -274,9 +269,9 @@ new Vue, beforeCreate, created, beforeMount, mounted
 
 若使用const app , app.$mount('#root') 就会执行
 
-```
+```js
 setInterval(() => {
-	app.text = app.text += 1
+ app.text = app.text += 1
 },1000)
 
 // 主动销毁
@@ -285,14 +280,14 @@ app.$destroy()
 
 组件：
 
-```
+```js
 activated() {
-	// 在组件
-	console.log(this, 'activated')
+ // 在组件
+ console.log(this, 'activated')
 }
 deactivated() {
-	// 在组件
-	console.log(this, 'deactivated')
+ // 在组件
+ console.log(this, 'deactivated')
 }
 ```
 
@@ -300,7 +295,7 @@ deactivated() {
 
 el:
 
-```
+```js
 undefined 'beforeCreate'
 undefined 'created'
 <div id="root"></div> "beforeMount"
@@ -325,28 +320,30 @@ Init injections & reactivity
 created(数据操作)
 
 Has 'el' option ? No when vm.$mount(el) is called
+
 - 判断是否有el // el: '#root'
 
 YES Has 'template' option ?
-- 判断是否有 // template: ' <div> {{text}} </div> '
+
+- 判断是否有 // template: ' `<div>` {{text}} `</div>` '
 
 有template属性：
 
-```
 解析render
 
+```js
 render(h) {
-	console.log('render function invoked')
-	return h('div', {}, this.text)
+ console.log('render function invoked')
+ return h('div', {}, this.text)
 }
 
 Waiting for update signal form WDS...
 
 undefined "beforeCreate"
 undefined "created"
-	<div id="root"></div> "beforeMount"
+ <div id="root"></div> "beforeMount"
 render function invoked
-	<div>0</div> "mounted"
+ <div>0</div> "mounted"
 ```
 
 Yes:有 Compile template into render function
@@ -360,6 +357,7 @@ Create vm.$el and replace 'el' with it
 mounted
 
 Mounted(实例创建完成)
+
 - when data changes (beforeUpdate) Virtual DOM re-render and patch (updated)
 - 走 when wm.$destroy() is called
 
@@ -373,17 +371,17 @@ destroyed
 
 打包正式上线不会调用的，开发的时候会使用
 
-```
+```js
 renderError (h, err) {
-	return h('div', {}, err.stack)
+ return h('div', {}, err.stack)
 }
 ```
 
 正式开发环境，收集线上的错误
 
-```
+```js
 errorCaptured() {
-	<!-- 会向上冒泡 -->
+ <!-- 会向上冒泡 -->
 }
 ```
 
@@ -392,23 +390,3 @@ vue里面的data绑定到template
 watch监听到某个一数据的变化，指定某个操作，（服务器使用）
 
 Vue的原生指令
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
