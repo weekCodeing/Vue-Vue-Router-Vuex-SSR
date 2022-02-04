@@ -93,6 +93,25 @@ npm i eslint-plugin-html
 ```
 
 ```js
+npm i webpack -D
+// webpack 4
+npm uninstall webpack webpack-dev-server webpack-merge -D
+// webpack 升级
+npm i webpack webpack-dev-server webpack-merge webpack-cli -D
+
+npm uninstall babel-loader extract-text-webpack-plugin file-loader html-webpack-plugin -D
+```
+
+## webpack.config.base.js
+
+```js
+const config = {
+ mode: process.env.NODE_ENV, // development || production
+ target: 'web',
+}
+```
+
+```js
 npm i eslint-loader babel-eslint
 ```
 
