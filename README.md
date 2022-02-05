@@ -115,7 +115,28 @@ const config = {
 npm i eslint-loader babel-eslint
 ```
 
-## index.js
+## Vue的一些点
+
+```js
+import Vue from 'vue'
+
+const div = document.createElement('div')
+document.body.appendChild(div)
+
+new Vue({
+ el: div,
+ template: '<div>this is content</div>'
+})
+
+// webpack.config.practice.js
+resolve: {
+ alias: {
+  'vue': path.join(__dirname, '../node_modules/vue/dist/vue.esm.js')
+ }
+}
+```
+
+index.js
 
 ```js
 import Vue from 'vue'
@@ -141,24 +162,51 @@ new Vue({
 import Vue from 'vue'
 const app = new Vue({
  // el: '#root',
- template: '<div>{{text}}</div>',
+ template: '<div ref="div">{{text}}</div>',
  data: {
   text: 0
  }
 })
+
 app.$mount('#root')
+
 setInterval(()=>{
- app.text += 1
+ // app.text += 1
+ // app.$options.data += 1 不可以使用
+ app.$data.text += 1 // 可以使用
 },1000)
+
 console.log(app.$data)
 console.log(app.$props)
 console.log(app.$el)
 console.log(app.$options)
 
+console.log(app.$slots)
+console.log(app.$scopedSlots)
+
+console.log(app.$ref) // div节点/组件实例
+
+console.log(app.$isServer) // 服务端渲染
+
 app.$options.render = (h) => {
  return h('div', {}, 'new render function')
 }  
 ```
+
+```js
+props: {
+ filter: {
+  type: String,
+  required: true
+ },
+ todos: {
+  type: Array,
+  required: true
+ }
+}
+```
+
+## watch
 
 ```js
 const app = new Vue({
@@ -181,7 +229,7 @@ const unWatch = app.$watch('text', (newText, oldText){
  console.log(`${nextText}:${oldText}`)
 })
 setTimeout(()=>{
- unWatch()
+ unWatch() // 取消 2秒后
 }, 2000)
 ```
 
@@ -210,7 +258,7 @@ app.$once('test', (a, b) => {
 })
 ```
 
-强制组件渲染一次
+## forceUpdate强制组件渲染一次
 
 非响应式的：
 
@@ -235,7 +283,7 @@ setInterval(() => {
 let i = 0
 setInterval(()=>{
  i++
- app.$set(app.obj, 'a', i)
+ app.$set(app.obj, 'a', i) // 变化，某个对象上的某个属性值给它一个值
 },1000)
 ```
 
