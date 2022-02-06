@@ -295,6 +295,8 @@ setInterval(()=>{
 
 2.1.0新增，如果没有提供回调且支持Promise的环境中，则返回一个Promise.注意polyfill.
 
+## vue生命周期
+
 ```js
 new Vue({
  el: '#root',
@@ -332,7 +334,32 @@ new Vue({
  destroyed() {
   console.log(this, 'destroyed')
  },
+ render(h) {
+  console.log('render function invoked')
+  return h('div', {}, this.text)
+ },
+ renderError(h, err) {
+  return h('div', {}, err.stack)
+ },
+ errorCaptured() {
+  // 向上冒泡，并且正式环境可以使用
+ }
 })
+```
+
+```js
+undefined 'beforeCreate'
+undefined 'created'
+<div id="root"></div> "beforeMount"
+<div>0</div> "mounted"
+
+template: `<div> name: {{name}} </div>`
+
+computed: {
+ name() {
+  return `${this.firstName} ${this.lastName}`
+ } 
+}
 ```
 
 new Vue, beforeCreate, created, beforeMount, mounted
