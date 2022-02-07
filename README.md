@@ -372,6 +372,276 @@ v-model.trim 去掉空格
 </div>
 ```
 
+## 定义组件
+
+```js
+import Vue from 'vue'
+
+const compoent = {
+ template: '<div>This is compoent</div>'
+}
+
+// Vue.component('CompOne', compoent)
+
+new Vue({
+ components: {
+  CompOne: compoent
+ },
+ el: '#root',
+ template: '<comp-one></comp-one>'
+})
+
+// 报错
+const compoent = {
+ template: '<div>{{text}}</div>',
+ data: {
+  text: 123
+ }
+}
+
+[vue warn] the "data" option should be a function that returns a per-instance value in component definitions.
+```
+
+## props
+
+```js
+// 子组件
+const compoent = {
+ props: {
+  active: Boolean,
+  propOne: String
+ },
+ template: `
+  <div>
+   <input type="text" v-model="text">
+   <span>{{propOne}}</span>
+   <span v-show="active">see me if active</span>
+  </div>
+ `,
+ data() {
+  return {
+   text: 0
+  }
+ }
+}
+
+// 父组件传递
+<comp-one :active="true" prop-one="text1"></comp-one>
+```
+
+不允许在组件内部修改`this.propOne='inner content'`,
+
+```js
+vue warn: avoid mutating a prop directly since the value will be overwritten whenever the parent component re-renders. Instead, use a data or computed property based on the prop's value. Prop being mutated: "propOne"
+```
+
+```js
+// 子组件触发props修改
+
+// 子组件
+methods: {
+ handleChange() {
+  this.$emit('change')
+ }
+}
+
+// 子组件props
+
+props: ['active', 'propOne'],
+
+props: {
+ active: {
+  type: Boolean,
+  required: true,
+  default: true
+ }
+}
+
+props: {
+ active: {
+  // type: Boolean,
+  // required: true,
+  validator(value) {
+   return typeof value === 'boolean'
+  }
+ }
+}
+```
+
+```js
+const CompVue = Vue.extend(compoent)
+
+new CompVue({
+ el: '#root',
+ propsData: {
+  propOne: 'xxx'
+ }
+})
+```
+
+> 🌰
+
+```js
+const parent = new Vue({
+ name: 'parent'
+})
+
+const componet2 = {
+ extends: compoent,
+ data () {
+  return {
+   text: 1
+  }
+ },
+ mounted () {
+  console.log(this.$parent.$options.name) // Root
+  this.$parent.text = '12345'
+ }
+}
+
+new Vue({
+ parent: parent,
+ name: 'Root',
+ el: '#root',
+ mounted () {
+  console.log(this.$parent.$options.name) // parent
+ },
+ components: {
+  Comp: component2
+ },
+ data: {
+  text: 2333
+ },
+ template: `
+  <div>{{text}}</div>
+  <comp></comp>
+ `
+})
+```
+
+> 🌰栗子 input
+
+```js
+// 子组件
+handleInput (e) {
+ this.$emit('input', e.target.value)
+}
+
+// 父组件
+... :value="value" @input="value = arguments[0]"
+
+// 🌰
+const component = {
+ props: ['value'],
+ template: `
+  <div>
+   <input type="text" @input="handleInput"></input>
+  </div>
+ `,
+ methods: {
+  handleInput (e) {
+   this.$emit('input', e.target.value)
+  }
+ }
+}
+
+const component = {
+ model:; {
+  prop: 'value1',
+  event: 'change'
+ },
+ props: ['value1'],
+ template: `
+  <div>
+   <input type="text" @input="handleInput"></input>
+  </div>
+ `,
+ methods: {
+  handleInput (e) {
+   this.$emit('change', e.target.value)
+  }
+ }
+}
+```
+
+## 属性✍️
+
+> slot
+
+```js
+const component = {
+ template: `
+  <div :style="style">
+   <div class="header">
+    <slot name="header></slot>
+   </div>
+   <div class="body">
+    <slot name="body"></slot>
+   </div>
+  </div>
+ `,
+ data () {
+  return {
+   style: {
+    width: '200px';
+    height: '200px';
+    border: '1px solid #aaa'
+   }
+  }
+ }
+}
+
+<comp-one>
+ <span slot="header"> this is header </span>
+ <span slot="body"> this is body </span>
+</comp-one>
+```
+
+## slot-scope
+
+> 特殊🌰
+
+```js
+template: `
+ <div :style="style">
+  <slot value="456" aaa="111"></slot>
+ </div>
+`,
+
+// 父组件 - 组件内部使用的变量
+<comp-one>
+ <span slot-scope="props"> {{props.value}} {{props.aaa}} </span>
+</comp-one>
+```
+
+## provide inject
+
+```js
+provide : {
+ yeye: this,
+ value: this.value, // 错误
+},
+
+provide() {
+ const data = {}
+
+ Object.defineProperty(data, 'value', {
+  get: () => this.value,
+  enumerable: true
+ })
+
+ return {
+  yeye: this,
+  data
+  // value: this.value
+ }
+}
+
+// 子组件
+inject: ['yeye', 'data']
+template: '<div>child component: {{data.value}}</div>'
+```
+
 new Vue, beforeCreate, created, beforeMount, mounted
 
 没有el，就没有挂载beforeMount, mounted
@@ -499,3 +769,196 @@ vue里面的data绑定到template
 watch监听到某个一数据的变化，指定某个操作，（服务器使用）
 
 Vue的原生指令
+
+## Vue的组件 render function
+
+```js
+render (createElement) {
+ return createElement('comp-one', {
+  ref: 'comp'
+ }, [
+  createElement('span', {
+   ref: 'span'
+  }, this.value)
+ ])
+}
+
+render (createElement) {
+ return createElement('div', {
+  style: this.style,
+  on: {
+   click: () => { this.$emit('click') }
+  }
+ }, this.$slots.default)
+}
+```
+
+## Vue-Router && Vuex
+
+```js
+import Router from 'vue-router'
+
+import routers from './routes'
+
+exports default () => {
+ return new Router({
+  routers,
+  mode: 'history',
+  // base: '/base/',
+  linkActiveClass: 'active-link', // 子集
+  linkExactActiveClass: 'exact-active-link', // 准确目标
+  scrollBehavior (to, from, savedPosition) {
+   if (savedPosition) {
+    return savedPosition
+   } else {
+    return { x: 0, y: 0 }
+   }
+  },
+  // parseQuery (query) {
+  // },
+  // stringifyQuery (obj) {
+  // }
+ })
+}
+```
+
+> transition
+
+```js
+<transition name="fade">
+ <router-view />
+</transition>
+```
+
+```js
+this.$route
+// path: '/app/:id',  to="/app/123"
+fullPath: '/app/123'
+hash: ""
+matched: [{}]
+meta: {title:''}
+name: 'app'
+params: {id: '123'}
+path: '/app/123'
+query: {}
+```
+
+```js
+// routes.js
+{
+ path: '/app/:id',
+ props: true,
+ component: Todo,
+ name: 'app',
+ meta: {
+  title: 'this is app',
+  description: 'asdasd'
+ }
+}
+
+// todo.vue
+
+props: ['id'],
+mounted () {
+ console.log(this.id)
+}
+```
+
+```js
+{
+ path: '/login',
+ components: {
+  default: Login,
+  a: Todo
+ }
+}
+```
+
+## Vue-router 导航守卫
+
+```js
+import createRouter from './config/router'
+
+Vue.use(VueRouter)
+
+const router = createRouter()
+
+router.beforeEach((to, from, next) => {
+ // 做登录验证操作
+ console.log('before each invoked')
+ // next()
+ if (to.fullPath === '/app') {
+  next('/login') // 如果没有登录的话跳转到登录页面 next({ path: '/login' })
+ } else {
+  next() // 符合条件
+ }
+})
+
+router.beforeResolve((to, from, next) => {
+ console.log('before resolve invoked')
+ next()
+})
+
+router.afterEach((to, from) => {
+ console.log('after each invoked')
+})
+```
+
+```js
+// routes.js
+
+{
+ path: '/app',
+ beforeEnter (to, from, next) {
+  console.log('app route before enter')
+  next() // 只有当点击进入，才会调用
+ }
+}
+
+// before each invoked
+// app route before enter
+// before resolve invoked
+// after each invoked
+```
+
+```js
+// todo.vue
+export default {
+ beforeRouteEnter (to, from, next) {
+  console.log('todo before enter')
+  next()
+ },
+ 
+ beforeRouteUpdate (to, from, next) {
+  console.log('todo update enter')
+  next()
+ }, 
+ 
+ beforeRouteLeave (to, from, next) {
+  console.log('todo leave enter')
+  next()
+ },
+
+}
+```
+
+离开：
+
+```js
+todo leave enter
+before each invoked
+before resolve invoked
+after each invoked
+```
+
+进入：
+
+```js
+before each invoked
+app route before enter
+todo before enter
+before resolve invoked
+after each invoked
+```
+
+
