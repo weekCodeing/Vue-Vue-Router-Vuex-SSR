@@ -360,6 +360,16 @@ computed: {
   return `${this.firstName} ${this.lastName}`
  } 
 }
+
+<li v-for="(item, index) in arr">遍历数组</li>
+<li v-for="(val, key) in obj"></li>
+
+v-model.number 数字
+v-model.trim 去掉空格
+<div>
+ <input type="radio" value="one" v-model="pick"/>
+ <input type="radio" value="two" v-model="pick"/>
+</div>
 ```
 
 new Vue, beforeCreate, created, beforeMount, mounted
