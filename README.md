@@ -961,4 +961,187 @@ before resolve invoked
 after each invoked
 ```
 
+## Vuex集成
 
+```js
+import Vuex from 'vuex'
+
+const store = new Vuex.Store({
+ state: {
+  count: 0
+ },
+ mutations: {
+  updateCount (state, num) {
+   state.count = num
+  }
+ }
+})
+
+export default store
+```
+
+> 服务端渲染
+
+```js
+import createRouter from './config/router'
+import createStore from './store/store'
+
+Vue.use(VueRouter)
+Vue.use(Vuex)
+
+const router = createRouter()
+const store = createStore()
+```
+
+## Vuex 中 state 和 getters
+
+```js
+// store.js
+import Vuex from 'vuex'
+import defaultState from './state/state'
+import mutations from './mutations/mutations'
+import getters from './getters/getters'
+
+export default () => {
+ return new Vuex.Store({
+  state: defaultState,
+  mutations,
+  getters
+ })
+}
+```
+
+```js
+// state/state.js
+export default {
+ count: 0,
+ firstName: 'dada',
+ lastName: 'dada'
+}
+```
+
+```js
+// mutations/mutations.js
+export default {
+ updateCount (state, num) {
+  state.count = num
+ }
+}
+```
+
+### getters
+
+```js
+// getters/getters.js =========== computed
+export default {
+ fullName(state) {
+  return `${state.firstName} ${state.lastName}`
+ }
+}
+```
+
+```js
+// app.vue
+computed: {
+ count () {
+  return this.$store.state.count
+ },
+ 
+ fullName () {
+  return this.$store.getters.fullName
+ }
+}
+```
+
+> 快速使用
+
+```js
+import {
+ mapState,
+ mapGetters
+} from 'vuex'
+
+computed: {
+ // ...mapState(['count']),
+ // ...mapState({
+ //  counter: 'count'
+ // }),
+ ...mapState({
+  counter: (state) => state.count
+ }),
+ ...mapGetters(['fullName'])
+}
+```
+
+## Vuex 中 mutation 和 action
+
+```js
+// 开发环境 store.js
+const isDev = process.env.NODE_ENV === 'development'
+
+export default () => {
+ return new Vuex.Store({
+  strict: isDev,
+  state: defaultState,
+  mutations,
+  getters
+ })
+}
+```
+
+```js
+// actions/actions.js
+// dispatch 触发 actions 的
+// 异步
+export default {
+ updateCountAsync (store, data) {
+  setTimeout(() => {
+   store.commit('updateCount', data.num)
+  }, data.time)
+ } 
+}
+```
+
+```js
+// store.js
+import Vuex from 'vuex'
+import defaultState from './state/state'
+import mutations from './mutations/mutations'
+import getters from './getters/getters'
+import actions from './actions/actions'
+
+export default () => {
+ return new Vuex.Store({
+  state: defaultState,
+  mutations,
+  getters,
+  actions
+ })
+}
+```
+
+```js
+import {
+ mapState,
+ mapGetters,
+ mapActions,
+ mapMutations
+} from 'vuex'
+
+mounted () {
+ this.updateCountAsync({
+  num: 5,
+  time: 2000
+ })
+}
+
+// mapActions mapMutations 操作
+methods: {
+ ...mapActions(['updateCountAsync']),
+ ...mapMutations(['updateCount'])
+}
+```
+
+## Vuex 中的模块
+
+## Vuex 中的API
