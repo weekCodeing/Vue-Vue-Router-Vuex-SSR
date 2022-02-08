@@ -1144,4 +1144,122 @@ methods: {
 
 ## Vuex 中的模块
 
-## Vuex 中的API
+```js
+// app.vue
+mounted () {
+ this['a/updateText']('123')
+}
+
+methods: {
+ ...mapActions(['updateCountAsync']),
+ ...mapMutations(['updateCount', 'a/updateText'])
+}
+
+computed: {
+ ...mapState({
+  counter: (state) => state.count,
+  textA: state => state.a.text
+ }),
+ ...mapGetters(['fullName', 'a/textPlus'])
+ textA () {
+  return this.$store.state.a.text
+ }
+}
+
+// store.js
+modules {
+ a: {
+  namespaced: true
+  state: {
+   text: 1
+  },
+  mutations: {
+   updateText (state, text) {
+    console.log('a.state', state)
+    state.text = text
+   }
+  },
+  getters: {
+   textPlus (state, getters, rootState) {
+    return state.text + rootState.count + rootState.b.text
+   }
+  },
+  actions: {
+   add ({ state, commit, rootState }) {
+    commit('updateText', rootState.count) // 全局找{ root: true }
+    // commit('updateCount', rootState.count, { root: true }) // 全局找{ root: true }
+   }
+  }
+ },
+ 
+ b: {
+  state: {
+   text: 2
+  },
+  actions: {
+   testAction ({ commit }) {
+    commit('a/updateText', 'test text', { root: true })
+   }
+  }
+ }
+}
+
+store.hotUpdate({})
+```
+
+## Vuex 中的 API
+
+```js
+// index.js
+const router = createRouter()
+const store = createStore()
+
+store.registerModule('c', {
+ state: {
+  text: 3
+ }
+})
+
+// 监听这个值的变化
+store.watch((state) => state.count + 1, (newCount) => {
+ console.log(newCount)
+})
+
+// 订阅
+store.subscribe((mutation, state) => {
+ console.log(mutation.type) // 调用哪个mutation
+ console.log(mutation.payload) // mutation 接收的参数 传入的值
+})
+
+store.subscribeAction((action, state) => {
+ console.log(action.type)
+ console.log(action.payload)
+})
+
+store.unregisterModule('c')
+```
+
+```js
+// store.js
+export default () => {
+ const store = new Vuex.Store({
+  strict: isDev,
+  state: defaultState,
+  mutations,
+  getters,
+  actions,
+  plugins: [
+   (store) => {
+    console.log('my plugin invoked')
+   }
+  ]
+ })
+}
+
+// my plugin invoked
+// before each invoked
+// before resolve invoked
+// after each invoked
+```
+
+
