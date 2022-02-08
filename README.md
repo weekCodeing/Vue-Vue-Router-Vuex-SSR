@@ -1262,4 +1262,6 @@ export default () => {
 // after each invoked
 ```
 
+## 服务端渲染构建流程
 
+访问服务端渲染页面： webpack server compiler -> nodejs server 3333端口
