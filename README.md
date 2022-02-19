@@ -1488,6 +1488,10 @@ const notify = (options) => {
 }
 ```
 
+```js
+// "precommit": "npm run lint-fix",
+```
+
 ## 部署
 
 ok!
