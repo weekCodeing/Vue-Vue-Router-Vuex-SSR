@@ -1265,3 +1265,229 @@ export default () => {
 ## 服务端渲染构建流程
 
 访问服务端渲染页面： webpack server compiler -> nodejs server 3333端口
+
+1. 纯前端渲染： webpack dev server 8000 端口
+2. 访问服务端渲染页面：webpack server compiler server 创建 server bundle -> nodejs server 3333端
+
+```js
+npm i vue -D // devDependencies
+
+npm i vue -S // dependencies
+
+npm i vue-server-renderer
+
+npm i koa-router -S
+
+npm i axios -S
+```
+
+## server 服务端渲染
+
+```js
+const koa = require('koa')
+const app = new Koa()
+const isDev = process.env.NODE_ENV = 'development'
+```
+
+### dev-ssr.js
+
+```js
+const Router = require('koa-router')
+const axios = require('axios')
+const MemoryFS = require('memory-fs')
+const webpack = require('webpack')
+const VueServerRenderer = require('vue-server-render')
+```
+
+## 组件开发
+
+```js
+notification 通知
+```
+
+```js
+<template>
+ <transition name="fade" @after-leave="afterLeave" @after-enter="afterEnter">
+  <div class="notification" :style="style" v-show="visible" @mouseenter="clearTimer" @mouseleave="createTimer">
+   <span class="content">{{content}}</span>
+   <a class="btn" @click="handleClose">{{btn}}</a>
+  </div>
+ </transition>
+</template>
+
+<script>
+export default {
+ name: 'Notification',
+ props: {
+  content: {
+   type: String,
+   require: true
+  },
+  btn: {
+   type: String,
+   default: '关闭'
+  }
+ },
+data() {
+ return {
+  visible: true 
+ }
+},
+computed: {
+ style () {
+  return {}
+ }
+},
+ methods: {
+  handleClose (e) {
+   e.preventDefault() // 默认事件阻止掉
+   this.$emit("close")
+  },
+  afterLeave() {
+   this.$emit("closed")
+  },
+  afterEnter() {
+  },
+  clearTimer(){},
+  createTimer(){},
+ }
+}
+</script>
+```
+
+```js
+// index.js
+// 全局
+import Notification from './notification.vue'
+import notify from './function'
+
+export default (Vue) => {
+ Vue.component(Notification.name, Notification)
+ Vue.prototype.$notify = notify
+}
+```
+
+```js
+<notification content="test notify">
+```
+
+```js
+// func-notification.js
+import Notification from './notification.vue'
+
+export default {
+ extends: Notification,
+ computed: {
+  style() {
+   return {
+    position:; 'fixed',
+    right: '20px',
+    bottom: `${this.verticalOffset}px`
+   }
+  }
+ },
+ mounted () {
+  this.createTimer()
+ },
+ methods: {
+  createTimer() {
+   if (this.autoClose) {
+    this.timer = setTimeout(() => {
+     this.visible = false
+    }, this.autoClose)
+   }
+  },
+  clearTimer () {
+   if (this.timer) {
+    clearTImeout(this.timer)
+   }
+  },
+  afterEnter() {
+   this.height = this.$el.offsetHeight
+  }
+ },
+beforeDestory () {
+ this.clearTimer()
+},
+ data() {
+  return {
+   verticalOffset: 0,
+   autoClose:  3000,
+   height: 0,
+   visible: false
+  }
+ }
+}
+```
+
+```js
+// function.js
+import Vue from 'vue'
+import Component from './func-notification'
+
+const NotificationConstructor = Vue.extend(Component)
+
+const instances = []
+let seed = 1 // 组件id的
+
+const removeInstance = (instance) => {s
+ if (!instance) return
+ const len = instances.length
+ const index = instances.findIndex(inst => instance.id === inst.id)
+
+ instance.splice(index, 1)
+
+ if (len <= 1) return
+ const removeHeight = instance.vm.height
+ for (let i = index; i < len - 1; i++) {
+  instances[i].verticalOffset = parseInt(instances[i].verticalOffset) - removeHeight - 16
+ }
+}
+
+const notify = (options) => {
+ if (Vue.prototype.$isServer) return
+ 
+ const {
+  autoClose,
+  ...rest
+ } = options
+ const instance = new NotificationConstructor({
+  // propsData: options
+  propsData: {
+   ...rest
+  },
+  data: {
+   autoClose: autoClose === undefined ? 3000 : autoClose
+  }
+ })
+
+ const id = `notification_${seed++}`
+ instance.id = id
+ instance.vm = instance.$mount() // 节点有了，div😊有了
+
+ document.body.appendChild(instance.vm.$el)
+ instance.vm.visible = true
+
+ let verticalOffset = 0
+ instances.forEach(item => {
+  verticalOffset += item.$el.offsetHeight + 16
+ })
+ verticalOffset += 16
+ instance.verticalOffset = verticalOffset
+ instances.push(instance)
+ 
+ instance.vm.$on('close', () => {
+  removeInstance(instance)
+  document.body.removeChild(instance.vm.$el)
+  instance.vm.$destroy()
+ })
+ instance.vm.$on('close', () => {
+  instance.vm.visible = false
+ })
+ return instance.vm
+}
+```
+
+## 部署
+
+ok!
